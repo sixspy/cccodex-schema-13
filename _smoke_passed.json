@@ -1,0 +1,12 @@
+{
+  "label": "schema-13",
+  "port": 7720,
+  "login_url": "http://127.0.0.1:7720/login",
+  "http_status": 200,
+  "checks": [
+    "含登录相关文案",
+    "含密码表单线索"
+  ],
+  "passed": true,
+  "checked_at": "2026-11-19T03:27:59+08:00"
+}
