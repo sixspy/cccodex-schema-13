@@ -8,9 +8,12 @@ from app.config import Config
 from app.db import init_db
 from app.services import (
     apply_contract,
+    build_timeline,
+    list_audits,
     list_contracts,
     list_reports,
     run_breaking_check,
+    run_compliance_check,
     run_reconcile,
 )
 from app.services.errors import ServiceError
@@ -40,6 +43,9 @@ def create_app(db_path: str | None = None) -> web.Application:
     app.router.add_post("/api/contracts/{cid}/apply", api_apply)
     app.router.add_get("/api/reconcile-reports", api_reports)
     app.router.add_post("/api/reconcile-reports", api_reconcile)
+    app.router.add_get("/api/audits", api_audits)
+    app.router.add_get("/api/timeline", api_timeline)
+    app.router.add_get("/api/compliance", api_compliance)
     return app
 
 
@@ -134,9 +140,10 @@ async def api_breaking(request: web.Request):
 
 async def api_apply(request: web.Request):
     try:
-        require_user(request)
+        actor = require_user(request)
         cid = int(request.match_info["cid"])
-        return json_resp({"contract": apply_contract(cid, request.app.get("db_path"))})
+        result = apply_contract(cid, actor, request.app.get("db_path"))
+        return json_resp(result)
     except ServiceError as exc:
         return json_resp({"error": exc.message}, exc.status_code)
 
@@ -157,3 +164,33 @@ async def api_reconcile(request: web.Request):
         return json_resp({"report": run_reconcile(as_of, request.app.get("db_path"))})
     except ServiceError as exc:
         return json_resp({"error": exc.message}, exc.status_code)
+
+
+async def api_audits(request: web.Request):
+    try:
+        require_user(request)
+    except ServiceError as exc:
+        return json_resp({"error": exc.message}, exc.status_code)
+    return json_resp({"items": list_audits(request.app.get("db_path"))})
+
+
+async def api_timeline(request: web.Request):
+    try:
+        require_user(request)
+    except ServiceError as exc:
+        return json_resp({"error": exc.message}, exc.status_code)
+    table_name = (request.query.get("table_name") or "").strip()
+    if not table_name:
+        return json_resp({"error": "缺少 table_name"}, 400)
+    try:
+        return json_resp(build_timeline(table_name, request.app.get("db_path")))
+    except ServiceError as exc:
+        return json_resp({"error": exc.message}, exc.status_code)
+
+
+async def api_compliance(request: web.Request):
+    try:
+        require_user(request)
+    except ServiceError as exc:
+        return json_resp({"error": exc.message}, exc.status_code)
+    return json_resp(run_compliance_check(request.app.get("db_path")))

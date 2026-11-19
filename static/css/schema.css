@@ -54,6 +54,11 @@ button.ghost { background: transparent; }
   display:inline-block; padding: 0.1rem 0.55rem; border-radius: 999px;
   background: var(--accent-soft); color: var(--accent); font-size: 0.8rem;
 }
+.chip.bad { background: #f6ddd6; color: var(--danger); }
+.chip.mono, .mono { font-family: "JetBrains Mono", "SFMono-Regular", Consolas, monospace; }
+.card.flagged { border-color: var(--danger); background: #fff4f1; }
+.bar { height: 8px; border-radius: 999px; background: var(--accent-soft); overflow: hidden; }
+.bar i { display:block; height: 100%; background: var(--accent); }
 label { display:block; margin: 0.7rem 0; }
 input { width:100%; margin-top: 0.3rem; padding: 0.55rem 0.7rem; border-radius: 10px; border:1px solid var(--line); font: inherit; }
 .row { display:flex; gap: 0.6rem; flex-wrap: wrap; align-items: center; }
